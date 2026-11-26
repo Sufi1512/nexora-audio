@@ -1,0 +1,86 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nexora-audio"
+dynamic = ["version"]
+description = "Real-time AI audio processing SDK: noise cancellation, VAD, gain control and streaming."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Sufiyan Khan" }]
+keywords = ["audio", "noise-suppression", "vad", "real-time", "voice-agents", "webrtc"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Sound/Audio :: Analysis",
+  "Typing :: Typed",
+]
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "pydantic>=2.5",
+  "onnxruntime>=1.16",
+]
+
+[project.scripts]
+nexora-audio = "nexora_audio.cli:main"
+
+[project.optional-dependencies]
+devices = ["sounddevice>=0.4.6"]
+io = ["soundfile>=0.12"]
+eval = ["pystoi>=0.4"]
+qualitylab = ["pystoi>=0.4", "soundfile>=0.12", "sherpa-onnx>=1.10"]
+server = ["websockets>=12"]
+pipecat = ["pipecat-ai>=0.0.80"]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+  "mypy>=1.10",
+  "scipy-stubs",
+  "websockets>=12",
+  "soundfile>=0.12",
+  "hatchling>=1.24",
+]
+
+[tool.hatch.version]
+path = "src/nexora_audio/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexora_audio"]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+  "device: needs a real audio device and PortAudio (skipped in CI)",
+  "slow: long-running benchmark or quality test",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "qualitylab"]
+extend-exclude = ["src/nexora_audio/backends/_whisper_features.py"]  # vendored
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "NPY"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["soundfile", "sounddevice", "onnxruntime", "websockets", "pipecat.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["nexora_audio.backends._whisper_features"]  # vendored unchanged from pipecat-ai
+warn_return_any = false

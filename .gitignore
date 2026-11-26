@@ -1,0 +1,15 @@
+dist/
+build/
+*.egg-info/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.env
+__pycache__/
+.DS_Store
+# quality lab: downloaded test audio/models and run outputs
+qualitylab/.cache/
+qualitylab/out/
+# recorded live test calls (personal voice data)
+examples/calls/
